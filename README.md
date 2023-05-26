@@ -17,4 +17,4 @@ AUTHORS
 
 LINKS
 ===============
-* 
+* http://www.edm2.com/index.php/Controlling_PM_Controls
