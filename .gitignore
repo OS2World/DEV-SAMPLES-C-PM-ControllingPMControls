@@ -1,0 +1,7 @@
+bin-gcc/
+bin-ow/
+*.obj
+*.res
+*.map
+*.exe
+*.EXE

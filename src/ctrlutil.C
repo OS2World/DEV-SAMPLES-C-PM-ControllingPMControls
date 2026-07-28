@@ -1,6 +1,11 @@
 //==========================================================================
 // ctrlutil.c : OS/2 PM controls utility functions
 // 10-01-2002 * by Alessandro Cantatore * v. 0.1
+//
+// HISTORY:
+// 2002-01-10  Alessandro Cantatore   Original version 0.1.
+// 2026-07-28  Martin Iturbide        Moved to src/, added dual GCC/OW
+//                                    build system.
 //==========================================================================
 
 
@@ -64,25 +69,25 @@ BOOL CtrlTextSize(HWND hwnd, PCTRLTXT pct) {
          // if the mnemonic character is not the first text character,
          // get the width of the text preceding it
          if (pct->mnemo) {
-            if (!GpiQueryTextBox(hps, pct->mnemo, pct->ach, 3, aptl))
+            if (!GpiQueryTextBox(hps, pct->mnemo, (PCH)pct->ach, 3, aptl))
                goto error;
             pct->cx = pct->xmnemo = aptl[2].x - aptl[1].x;
          } /* endif */
          // get the width of the mnemonic character
-         if (!GpiQueryTextBox(hps, 1, pct->ach + pct->mnemo, 3, aptl))
+         if (!GpiQueryTextBox(hps, 1, (PCH)(pct->ach + pct->mnemo), 3, aptl))
             goto error;
          pct->cx += (pct->cxmnemo = aptl[2].x - aptl[1].x);
          // if the mnemonic character was not the last character in the
          // string, get the width of the remaining string
          if ((pct->mnemo + 1) < pct->len) {
             if (!GpiQueryTextBox(hps, pct->len - pct->mnemo - 1,
-                                 pct->ach + pct->mnemo + 1, 3, aptl))
+                                 (PCH)(pct->ach + pct->mnemo + 1), 3, aptl))
                goto error;
             pct->cx += aptl[2].x - aptl[1].x;
          } /* endif */
       // single line without mnemonic style or mnemonic character
       } else {
-         if (!GpiQueryTextBox(hps, pct->len, pct->ach, 3, aptl))
+         if (!GpiQueryTextBox(hps, pct->len, (PCH)pct->ach, 3, aptl))
             goto error;
          pct->cx = aptl[2].x - aptl[1].x;
       } /* endif */
@@ -121,12 +126,12 @@ BOOL CtrlTextSize(HWND hwnd, PCTRLTXT pct) {
 
 PCTRLTXT CtrlTextSet(PCTRLTXT pct, PSZ pszText, LONG len, BOOL bmnemo) {
    PSZ psz;
-   if (len < 0) len = pszText? strlen(pszText) : 0;
+   if (len < 0) len = pszText? strlen((const char *)pszText) : 0;
    if (len > 512) len = 512;
    if (pct) memfree(pct);
    if (NULL != (pct = (PCTRLTXT)memalloc(len + sizeof(CTRLTXT)))) {
       // if a mnemonic tag character (~) is found it is stripped
-      if (len && bmnemo && (NULL != (psz = strchr(pszText, '~')))) {
+      if (len && bmnemo && (NULL != (psz = (PSZ)strchr((const char *)pszText, '~')))) {
          len--;
          // if the mnemonic tag is not the first character copy the
          // part of the string preceding it
@@ -261,22 +266,22 @@ ULONG CtrlTextDraw(HPS hps, PCTRLTXT pct, PRECTL pr,
       pt.y = pr->yTop - pct->cy + pct->y;
    } /* endif */
    // adjust the clipping rectangle
-   pr->xRight --, pr->yTop--;
+   pr->xRight--, pr->yTop--;
    // process 3D attributes
    if (pct->usflag & DT_3DTEXTTOP) {
       pt.x++, pt.y--;
       GpiSetColor(hps, clrBktxt);
       GpiCharStringPosAt(hps, &pt, pr,
              CHS_CLIP | ((pct->usflag & (DT_UNDERSCORE | DT_STRIKEOUT)) << 5),
-             pct->len, pct->ach, NULL);
+             pct->len, (PCCH)pct->ach, NULL);
       if (pct->mnemo >= 0) underlineMnemo(hps, pct, pr, &pt);
       pt.x--, pt.y++;
    } else if (pct->usflag & DT_3DTEXTBOTTOM) {
-      pt.x --, pt.y++; 
+      pt.x--, pt.y++;
       GpiSetColor(hps, clrBktxt);
       GpiCharStringPosAt(hps, &pt, pr,
              CHS_CLIP | ((pct->usflag & (DT_UNDERSCORE | DT_STRIKEOUT)) << 5),
-             pct->len, pct->ach, NULL);
+             pct->len, (PCCH)pct->ach, NULL);
       if (pct->mnemo >= 0) underlineMnemo(hps, pct, pr, &pt);
       pt.x++, pt.y--;
    } /* endif */
@@ -284,7 +289,7 @@ ULONG CtrlTextDraw(HPS hps, PCTRLTXT pct, PRECTL pr,
    GpiSetColor(hps, clrFgnd);
    GpiCharStringPosAt(hps, &pt, pr,
              CHS_CLIP | ((pct->usflag & (DT_UNDERSCORE | DT_STRIKEOUT)) << 5),
-             pct->len, pct->ach, NULL);
+             pct->len, (PCCH)pct->ach, NULL);
    if (pct->mnemo >= 0) underlineMnemo(hps, pct, pr, &pt);
    // if DT_HALFTONE style, overlays an halftoned rectangle
    if (pct->usflag & DT_HALFTONE) {
@@ -442,15 +447,15 @@ BOOL WinHalftoneRect(HPS hps, PRECTL pr, LONG clr) {
 VOID Win3DBorderDraw(HPS hps, PRECTL pr, LONG clrul, LONG clrbr, ULONG cpbrd) {
    POINTL apt[2];
    while (cpbrd--) {
-      // bordo sinistro e superiore
+      // left and top border
       GpiSetColor(hps, clrul);
       PointSet(apt, pr->xLeft, pr->yBottom);
       GpiMove(hps, apt);
       PointSet(apt, pr->xLeft, pr->yTop);
       PointSet(apt + 1, pr->xRight, pr->yTop);
       GpiPolyLine(hps, 2, apt);
-      // bordo destro e inferiore
-      GpiSetColor(hps, clrbr);       
+      // right and bottom border
+      GpiSetColor(hps, clrbr);
       PointSet(apt, apt[1].x, apt[1].y);
       GpiMove(hps, apt);
       PointSet(apt, pr->xRight, pr->yBottom);
@@ -458,4 +463,4 @@ VOID Win3DBorderDraw(HPS hps, PRECTL pr, LONG clrul, LONG clrbr, ULONG cpbrd) {
       GpiPolyLine(hps, 2, apt);
       RectInflate(pr, -1, -1);
    } /* endfor */
-}  
+}

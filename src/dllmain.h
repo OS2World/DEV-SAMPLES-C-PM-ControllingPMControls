@@ -1,6 +1,10 @@
 //========================================================================
 // dllmain.h : definitions of global variables, macros, structures
 //             These definitions should only be available to the DLL sources
+//
+// HISTORY:
+// 2002-12-24  Alessandro Cantatore   Original version.
+// 2026-07-28  Martin Iturbide        Moved to src/, dual GCC/OW build.
 //========================================================================
 
 // header inclusions
@@ -10,11 +14,6 @@
    #define INCL_WIN
    #define INCL_GPI
    #define INCL_DOS
-//   #define INCL_DOSMISC
-//   #define INCL_DOSPROCESS
-//   #define INCL_DOSSEMAPHORES
-//   #define INCL_DOSMODULEMGR
-//   #define INCL_SHLERRORS
 
    #include <os2.h>
    #include <stdlib.h>

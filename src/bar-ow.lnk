@@ -1,0 +1,8 @@
+SYSTEM os2v2_pm
+FILE bin-ow\ctrlutil.obj
+FILE bin-ow\superclass.obj
+NAME bin-ow\BAR.EXE
+OPTION MAP=bin-ow\BAR.MAP
+OPTION QUIET
+OPTION STACK=65536
+OPTION DESCRIPTION '@#OS2World:1.01#@##1## 2026-07-28     ARCAOS-507::::::@@Controlling PM Controls - Bar control sample (superclassing WC_STATIC)'

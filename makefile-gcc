@@ -1,0 +1,28 @@
+# makefile-gcc : GCC 9.2 / kLIBC (bitwiseworks) build for BAR.EXE
+# Usage: compile-gcc.cmd
+
+SRC = src
+OUT = bin-gcc
+
+CFLAGS = -Wall -Wno-unknown-pragmas -Zomf -O2 -I$(SRC) -x c
+
+all: $(OUT)/BAR.EXE
+
+$(OUT):
+	mkdir $(OUT)
+
+$(OUT)/ctrlutil.obj: $(SRC)/ctrlutil.C $(SRC)/dllmain.h $(SRC)/ApiExPM.h $(SRC)/ctrlutil.h | $(OUT)
+	gcc $(CFLAGS) -c -o $@ $(SRC)/ctrlutil.C
+
+$(OUT)/superclass.obj: $(SRC)/superclass.C $(SRC)/dllmain.h $(SRC)/superclass.h $(SRC)/ApiExPM.h $(SRC)/ctrlutil.h | $(OUT)
+	gcc $(CFLAGS) -c -o $@ $(SRC)/superclass.C
+
+$(OUT)/bar.res: $(SRC)/bar.rc $(SRC)/superclass.h | $(OUT)
+	wrc -r -bt=os2 -q -I$(SRC) $(SRC)/bar.rc -fo=$@
+
+$(OUT)/BAR.EXE: $(OUT)/ctrlutil.obj $(OUT)/superclass.obj $(OUT)/bar.res $(SRC)/bar-gcc.def
+	gcc -Zomf -o $@ $(OUT)/ctrlutil.obj $(OUT)/superclass.obj $(SRC)/bar-gcc.def
+	wrc $(OUT)/bar.res $@
+
+clean:
+	rm -f $(OUT)/*.obj $(OUT)/*.res $(OUT)/*.map $(OUT)/BAR.EXE

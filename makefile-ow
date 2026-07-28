@@ -1,0 +1,28 @@
+# makefile-ow : OpenWatcom 2.0 build for BAR.EXE
+# Usage: compile-ow.cmd
+
+SRC = src
+OUT = bin-ow
+
+CFLAGS = -I=$(SRC) -bt=os2 -zq -Ot -w3
+
+.BEFORE
+	if not exist $(OUT) mkdir $(OUT)
+
+all: $(OUT)\BAR.EXE .SYMBOLIC
+
+$(OUT)\BAR.EXE: $(OUT)\ctrlutil.obj $(OUT)\superclass.obj $(OUT)\bar.res $(SRC)\bar-ow.lnk
+	wlink @$(SRC)\bar-ow.lnk
+	wrc $(OUT)\bar.res $(OUT)\BAR.EXE
+
+$(OUT)\bar.res: $(SRC)\bar.rc $(SRC)\superclass.h
+	wrc -r -bt=os2 -q -I=$(SRC) $(SRC)\bar.rc -fo=$(OUT)\bar.res
+
+$(OUT)\ctrlutil.obj: $(SRC)\ctrlutil.C $(SRC)\dllmain.h $(SRC)\ApiExPM.h $(SRC)\ctrlutil.h
+	wcc386 $(SRC)\ctrlutil.C $(CFLAGS) -fo=$@
+
+$(OUT)\superclass.obj: $(SRC)\superclass.C $(SRC)\dllmain.h $(SRC)\superclass.h $(SRC)\ApiExPM.h $(SRC)\ctrlutil.h
+	wcc386 $(SRC)\superclass.C $(CFLAGS) -fo=$@
+
+clean: .SYMBOLIC
+	rm -f $(OUT)\*.obj $(OUT)\*.res $(OUT)\*.map $(OUT)\BAR.EXE

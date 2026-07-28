@@ -1,0 +1,9 @@
+src\ctrlutil.C(276): Warning! E1179: Parameter 6, type qualifier mismatch
+src\ctrlutil.C(276): Note! I2003: source conversion type is 'char const *'
+src\ctrlutil.C(276): Note! I2004: target conversion type is 'char *'
+src\ctrlutil.C(284): Warning! E1179: Parameter 6, type qualifier mismatch
+src\ctrlutil.C(284): Note! I2003: source conversion type is 'char const *'
+src\ctrlutil.C(284): Note! I2004: target conversion type is 'char *'
+src\ctrlutil.C(292): Warning! E1179: Parameter 6, type qualifier mismatch
+src\ctrlutil.C(292): Note! I2003: source conversion type is 'char const *'
+src\ctrlutil.C(292): Note! I2004: target conversion type is 'char *'

@@ -2,6 +2,12 @@
 // superclass.c : simple example of a static bar control implemented via
 //                superclassing
 // 10-01-2002 * by Alessandro Cantatore * v. 0.1
+//
+// HISTORY:
+// 2002-01-10  Alessandro Cantatore   Original version 0.1.
+// 2026-07-28  Martin Iturbide        Moved to src/, added dual GCC/OW
+//                                    build system. Fixed main() return
+//                                    type (VOID -> int).
 //===========================================================================
 
 
@@ -54,7 +60,7 @@ VOID BarPaint(HPS hps, HWND hwnd, PBAR pbar);
        SYSCLR_BUTTONLIGHT, FALSE);                                  \
    (pclr)[ICLR_SHADE] = CtrlClrGet((hwnd), PP_BORDERDARKCOLOR, 0,   \
        SYSCLR_BUTTONDARK, FALSE);                                   \
-}    
+}
 
 
 //===========================================================================
@@ -62,16 +68,16 @@ VOID BarPaint(HPS hps, HWND hwnd, PBAR pbar);
 // Parameters --------------------------------------------------------------
 // VOID
 // Return value ------------------------------------------------------------
-// VOID
+// int : 0
 //===========================================================================
 
-VOID main(VOID) {
+int main(void) {
    HAB hab;
    HMQ hmq;
    QMSG qmsg;
    HWND hwnd;
    hmq = WinCreateMsgQueue((hab = WinInitialize(0)), 0);
-   BarRegister(hab);   
+   BarRegister(hab);
    hwnd = WinLoadDlg(HWND_DESKTOP, 0, testDlgProc, 0, 100, NULL);
    if (hwnd) {
       while (WinGetMsg(hab, &qmsg, NULLHANDLE, 0, 0))
@@ -80,6 +86,7 @@ VOID main(VOID) {
    WinDestroyWindow(hwnd);
    WinDestroyMsgQueue(hmq);
    WinTerminate(hab);
+   return 0;
 }
 
 
@@ -117,10 +124,10 @@ BOOL BarRegister(HAB hab) {
       // store the default class procedure in the global variables
       pfnWcStatic = ci.pfnWindowProc;
       cbWcStatic = ci.cbWindowData;
-      return WinRegisterClass(hab, WC_BAR, BarProc,
+      return WinRegisterClass(hab, (PCSZ)WC_BAR, BarProc,
                               ci.flClassStyle & ~CS_PUBLIC,
                               ci.cbWindowData + sizeof(PVOID));
-   }                           
+   }
    return FALSE;
 }
 
@@ -136,22 +143,22 @@ BOOL BarRegister(HAB hab) {
 MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
    switch (msg) {
       PBAR pbar;
-      
+
       // Checks the mnemonic character -------------------------------------
       // If the control is not disabled checks the input character
       case WM_MATCHMNEMONIC:
          if (!(WinStyle(hwnd) & WS_DISABLED) &&
              (NULL != (pbar = BarData(hwnd))) && pbar->pct &&
              (pbar->pct->mnemo >= 0)) {
-            HAB hab = WinHAB(hwnd); 
+            HAB hab = WinHAB(hwnd);
             return (MRESULT)
                    (WinUpperChar(hab, 0, 0, (ULONG)mp1) ==
                     WinUpperChar(hab, 0, 0,
                             (ULONG)pbar->pct->ach[pbar->pct->mnemo]));
-         } /* endif */                        
+         } /* endif */
          return MRFALSE;
       /* end case WM_MATCHMNEMONIC */
-      
+
       // control painting --------------------------------------------------
       // WC_STATIC procedure is completely replaced here since we want to
       // paint the control ourselves
@@ -165,7 +172,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          } /* endif */
          return MRFALSE;
       /* end case WM_PAINT */
-      
+
       // Window resizing ---------------------------------------------------
       // if autosize, modify the control size, otherwise store the new size
       case WM_ADJUSTWINDOWPOS:
@@ -184,7 +191,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          } /* end if */
          return MRFALSE;
          /* end case WM_ADJUSTWINDOWPOS */
-         
+
       // Set the window text and other data --------------------------------
       // This message is caused by a WinSetWindowText() call. It may also
       // be sent directly if the control allow to change some data (for
@@ -214,9 +221,8 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          } /* endif */
          // invalid fsStatus flags: returns FALSE
          return MRFALSE;
-         //break;
       /* end case WM_SETWINDOWPARAMS */
-      
+
       // Checks the control text or the control data -----------------------
       // This message is caused by a WinQueryWindowTextLength() or by a
       // WinQueryWindowText() call, or may sent directly to query the control
@@ -224,8 +230,8 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
       // As stated by the PM documentation the only valid fsStatus flags
       // are: WPM_TEXT, WPM_CCHTEXT, WPM_CTLDATA and WPM_CBCTLDATA.
       // The flags in fsStatus must be cleared as each item is processed.
-      // If the call is successful, fsStatus is 0. If any item has not been 
-      // processed, the flag for that item is still set. 
+      // If the call is successful, fsStatus is 0. If any item has not been
+      // processed, the flag for that item is still set.
       // Note: in this implementeation the mnemonic tag character is not
       //        returned
       case WM_QUERYWINDOWPARAMS:
@@ -248,8 +254,8 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
                   ((PWNDPARAMS)mp1)->cchText = pbar->pct->len;
                   ((PWNDPARAMS)mp1)->fsStatus &= ~WPM_CCHTEXT;
                } /* endif */
-            } /* endif */   
-            // The control data have been queried 
+            } /* endif */
+            // The control data have been queried
             if (((PWNDPARAMS)mp1)->fsStatus & WPM_CTLDATA) {
                // set appropriately ((PWNDPARAMS)mp1)->pCtlData
                // and reset the fsStatus flags if successful:
@@ -259,7 +265,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
                   ((PWNDPARAMS)mp1)->fsStatus &=
                                              ~(WPM_CTLDATA | WPM_CBCTLDATA);
                } /* endif */
-            // The control data size has been queriedd
+            // The control data size has been queried
             } else if (((PWNDPARAMS)mp1)->fsStatus & WPM_CBCTLDATA) {
                ((PWNDPARAMS)mp1)->cbCtlData = 2;
                ((PWNDPARAMS)mp1)->fsStatus &= ~WPM_CBCTLDATA;
@@ -267,7 +273,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          } /* endif */
          return (MRESULT)!((PWNDPARAMS)mp1)->fsStatus;
       /* end case WM_QUERYWINDOWPARAMS */
-      
+
       // If the font has been changed measures the new text box ------------
       case WM_PRESPARAMCHANGED:
          if (((LONG)mp1 == PP_FONTNAMESIZE) &&
@@ -284,29 +290,29 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          CtrlUpdate(hwnd, FALSE);
          return MRFALSE;
       /* end case WM_PRESPARAMCHANGED */
-      
+
       // Set the bar thickness ---------------------------------------------
       // this also causes the BARS_AUTOSIZE style to be set
       case BARM_SETTHICKNESS:
          if (!mp1 || (NULL == (pbar = BarData(hwnd)))) return MRFALSE;
          pbar->style |= BARS_AUTOSIZE;
-         pbar->thkns = ((ULONG)mp1) & 0x7e;
+         pbar->thkns = (USHORT)((ULONG)(mp1) & 0x7e);
          if (pbar->style & BARS_VERTICAL) {
             pbar->sz.cx = pbar->thkns;
          } else {
-            pbar->sz.cy = max(pbar->thkns, (pbar->pct? pbar->pct->cy + 2: 0));
+            pbar->sz.cy = (SHORT)max(pbar->thkns, (pbar->pct? pbar->pct->cy + 2: 0));
          } /* endif */
          WinSetWindowPos(hwnd, 0, 0, 0, pbar->sz.cx, pbar->sz.cy,
                          SWP_SIZE | SWP_NOADJUST);
          return MRTRUE;
       /* end case BARM_SETTHICKNESS */
-      
+
       // Query the bar thickness -------------------------------------------
       case BARM_QUERYTHICKNESS:
          if (NULL == (pbar = BarData(hwnd))) return (MRESULT)0xffff;
-         return (MRESULT)pbar->thkns;
+         return (MRESULT)(ULONG)pbar->thkns;
       /* end case BARM_QUERYTHICKNESS */
-      
+
       // Window creation ---------------------------------------------------
       case WM_CREATE:
          // Checks if the control style is horizontal or vertical
@@ -314,7 +320,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          if (!pbar) return MRTRUE;
          WinSetWindowPtr(hwnd, cbWcStatic, (PVOID)pbar);
          // store the direction and BARS_AUTOSIZE styles
-         pbar->style = ((PCREATESTRUCT)mp2)->flStyle;
+         pbar->style = (USHORT)((PCREATESTRUCT)mp2)->flStyle;
          // if it is an horizontal bar stores the text
          if (pbar->style & BARS_VERTICAL) {
             pbar->pct = NULL;
@@ -335,7 +341,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          // Set the control thickness: if a non-default thickness is defined
          // automatically sets the AUTOSIZE style!!!
          if (((PCREATESTRUCT)mp2)->pCtlData) {
-            pbar->thkns = *((PUSHORT)((PCREATESTRUCT)mp2)->pCtlData) & 0x7e;
+            pbar->thkns = (USHORT)(*((PUSHORT)((PCREATESTRUCT)mp2)->pCtlData) & 0x7e);
             pbar->style |= BARS_AUTOSIZE;
          } else {
             pbar->thkns = (pbar->style & BARS_THICK) ? 4 : 2;
@@ -345,7 +351,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
             if (pbar->style & BARS_VERTICAL) {
                ((PCREATESTRUCT)mp2)->cx = pbar->thkns;
             } else {
-               ((PCREATESTRUCT)mp2)->cy = max(pbar->thkns, pbar->pct->cy + 2);
+               ((PCREATESTRUCT)mp2)->cy = (SHORT)max(pbar->thkns, pbar->pct->cy + 2);
             } /* endif */
             WinSetWindowPos(hwnd, 0, 0, 0,
                           ((PCREATESTRUCT)mp2)->cx, ((PCREATESTRUCT)mp2)->cy,
@@ -355,6 +361,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          pbar->sz.cy = ((PCREATESTRUCT)mp2)->cy;
          break;
          /* end case WM_CREATE */
+
       // Window destruction ------------------------------------------------
       // All the allocated resources are freed:
       case WM_DESTROY:
@@ -365,7 +372,7 @@ MRESULT EXPENTRY BarProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
          } /* endif */
          break;
       /* end case WM_DESTROY */
-       
+
    } /* endswitch */
    // all other messages go to the original WC_STATIC procedure
    return pfnWcStatic(hwnd, msg, mp1, mp2);
@@ -413,7 +420,7 @@ VOID BarPaint(HPS hps, HWND hwnd, PBAR pbar) {
       Win3DBorderDraw(hps, &r, aclr[ICLR_HILITE], aclr[ICLR_SHADE],
                       pbar->thkns >> 1);
    } else {
-      Win3DBorderDraw(hps, &r, aclr[ICLR_SHADE], aclr[ICLR_HILITE], 
+      Win3DBorderDraw(hps, &r, aclr[ICLR_SHADE], aclr[ICLR_HILITE],
                       pbar->thkns >> 1);
    } /* endif */
    // if it is an horizontal bar and there is any text draws it
@@ -433,9 +440,9 @@ VOID BarPaint(HPS hps, HWND hwnd, PBAR pbar) {
                         r.xLeft + pbar->pct->cx + 3);
       } /* endif */
       r.yBottom = 0, r.yTop = pbar->sz.cy;
-      pbar->pct->usflag = (style & WS_DISABLED) ?
+      pbar->pct->usflag = (USHORT)((style & WS_DISABLED) ?
                          DT_HALFTONE | DT_CENTER | DT_VCENTER | DT_ERASERECT :
-                         DT_CENTER | DT_VCENTER | DT_ERASERECT;
+                         DT_CENTER | DT_VCENTER | DT_ERASERECT);
       CtrlTextDraw(hps, pbar->pct, &r, aclr[ICLR_FGND], aclr[ICLR_BKGND], 0);
    } /* endif */
 }

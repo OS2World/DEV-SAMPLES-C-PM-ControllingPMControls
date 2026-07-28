@@ -2,6 +2,10 @@
 // superclass.h : simple example of a static bar control implemented via
 //                superclassing
 // 10-01-2002 * by Alessandro Cantatore * v. 0.1
+//
+// HISTORY:
+// 2002-01-10  Alessandro Cantatore   Original version 0.1.
+// 2026-07-28  Martin Iturbide        Moved to src/, dual GCC/OW build.
 //===========================================================================
 
 
@@ -72,16 +76,16 @@
 
 // macros
 #define WinBarThicknessSet(hwnd, thkns) \
-   ((BOOL)(WinSendMsg((hwnd), BARM_SETTHICKNESS, (MPARAM)(thkns), MPVOID)))
+   ((BOOL)(WinSendMsg((hwnd), BARM_SETTHICKNESS, (MPARAM)(ULONG)(thkns), MPVOID)))
 #define DlgBarThicknessSet(hwnd, id, thkns) \
    ((BOOL)(WinSendDlgItemMsg((hwnd), (id), BARM_SETTHICKNESS, \
                              (MPARAM)(thkns), MPVOID)))
 #define WinBarThickness(hwnd) \
-   ((SHORT)(WinSendMsg((hwnd), BARM_QUERYTHICKNESS, MPVOID, MPVOID))) 
+   ((SHORT)(WinSendMsg((hwnd), BARM_QUERYTHICKNESS, MPVOID, MPVOID)))
 #define DlgBarThickness(hwnd, id) \
    ((SHORT)(WinSendDlgItemMsg((hwnd), (id), BARM_QUERYTHICKNESS, \
                               MPVOID, MPVOID)))
-                              
+
 // macro used to check the orientation style
 #define BarIsVertical(style)   ((style) & 0x10)
 

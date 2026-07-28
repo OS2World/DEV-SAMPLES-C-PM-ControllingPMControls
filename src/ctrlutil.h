@@ -1,6 +1,10 @@
 //========================================================================
 // ctrlutil.h : structures and definitions used by the ctrlutil.c
 //              This code is designed to be shared by the various controls.
+//
+// HISTORY:
+// 2002-12-24  Alessandro Cantatore   Original version.
+// 2026-07-28  Martin Iturbide        Moved to src/, dual GCC/OW build.
 //========================================================================
 
 
@@ -32,9 +36,9 @@
  Multiple line edit boxes, lists, etc., should use other structures.
  The following coordinates are measured and stored (some are used only
  by controls which undeline the mnemonic character) :
-   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ -
-   ³ text to be _m_easured ³   cy    -
-   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ -       - ydesc
+   æµœæ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜è -
+   ï¿½ text to be _m_easured æ®º   cy    -
+   è—©æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜æ§˜å¤• -       - ydesc
    |<- xmnemo ->| |
               cxmnemo
    |<----- acx[idx] ------>|

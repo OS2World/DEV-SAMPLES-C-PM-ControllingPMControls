@@ -1,12 +1,34 @@
-//===========================================================================\
+//===========================================================================
 // ApiExPM.h: General purpose PM macros and definitions
 // 24-12-2001 * by Alessandro Cantatore * v...
-//===========================================================================/
+//
+// HISTORY:
+// 2001-12-24  Alessandro Cantatore   Original version.
+// 2026-07-28  Martin Iturbide        Moved to src/, dual GCC/OW build.
+//===========================================================================
 
 
 
 #ifndef _APIEX_PM_H_
    #define _APIEX_PM_H_
+
+// portable max/min — OS/2 headers may define these as external _max/_min
+// symbols under GCC/kLIBC; use inline ternary versions instead
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+// PCH/PCCH are defined in kLIBC headers as unsigned char* / const unsigned char*
+// but are absent from OpenWatcom OS/2 headers; provide plain-char fallbacks
+#ifndef PCH
+#define PCH   char *
+#endif
+#ifndef PCCH
+#define PCCH  const char *
+#endif
 
 // new type definitions
 // image handle : this is used by the control which can display both icons
@@ -88,6 +110,6 @@ typedef HIMAGE * PHIMAGE;
                             ((PRECTL)(prect))->yBottom += (dy),   \
                             ((PRECTL)(prect))->xRight += (dx),    \
                             ((PRECTL)(prect))->yTop += (dy))
-                            
-                        
-#endif // #i            fndef _APIEX_PM_H_
+
+
+#endif // #ifndef _APIEX_PM_H_
