@@ -8,6 +8,8 @@ The project was originally written by Alessandro Cantatore in 2002 for IBM Visua
 
 Article: http://www.edm2.com/index.php/Controlling_PM_Controls
 
+![ControllingPMControls ScreenShot](/wiki/ControllingPMControls.png)
+
 ## What it demonstrates
 
 - **Superclassing**: registering a new window class (`WC_BAR`) that intercepts messages before forwarding to the original `WC_STATIC` window procedure
